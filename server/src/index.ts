@@ -12,9 +12,14 @@ let players:any[] = [];
 
 const PORT = process.env.PORT || 4001;
 
-interface MoveData  {
+interface GameMoveData  {
     whosup: string,
     board: string[][]
+}
+
+interface WinnerNotificationData {
+    message: string;
+    board: string[][];
 }
 
 const onConnection = (socket:any) => {
@@ -32,19 +37,21 @@ const onConnection = (socket:any) => {
         }
     }
 
-    socket.on("startGame", () => {
-
-    });
-
-    socket.on("nextMove", (moveDetails: MoveData) => {
-        console.log("whos up " + moveDetails.whosup);
+    socket.on("nextMove", (gameMoveDetails: GameMoveData) => {
         players.forEach(player => {
-            player.emit("nextPlayer", moveDetails);
+            player.emit("nextPlayer", gameMoveDetails);
         }); 
     });
 
-    socket.on("winner",  (winnersSymbol: string) => {
-        socket.emit("winnerNotification", `${winnersSymbol} won the game!`)
+    socket.on("winner",  (gameMoveDetails: GameMoveData) => {
+        const winnerDetails: WinnerNotificationData = {
+            message: `${gameMoveDetails.whosup} won the game!`,
+            board: gameMoveDetails.board
+        }
+        players.forEach(player => {
+            player.emit("winnerNotification", winnerDetails);
+        }); 
+
         numOfPlayers = 0;
         players.forEach(player => {
             player.disconnect();

@@ -25,16 +25,20 @@ var onConnection = function (socket) {
             socket.emit('yourSymbol', 'O');
         }
     }
-    socket.on("startGame", function () {
-    });
-    socket.on("nextMove", function (moveDetails) {
-        console.log("whos up " + moveDetails.whosup);
+    socket.on("nextMove", function (gameMoveDetails) {
+        console.log("whos up " + gameMoveDetails.whosup);
         players.forEach(function (player) {
-            player.emit("nextPlayer", moveDetails);
+            player.emit("nextPlayer", gameMoveDetails);
         });
     });
-    socket.on("winner", function (winnersSymbol) {
-        socket.emit("winnerNotification", winnersSymbol + " won the game!");
+    socket.on("winner", function (gameMoveDetails) {
+        var winnerDetails = {
+            message: gameMoveDetails.whosup + " won the game!",
+            board: gameMoveDetails.board
+        };
+        players.forEach(function (player) {
+            player.emit("winnerNotification", winnerDetails);
+        });
         numOfPlayers = 0;
         players.forEach(function (player) {
             player.disconnect();
