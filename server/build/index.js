@@ -26,7 +26,6 @@ var onConnection = function (socket) {
         }
     }
     socket.on("nextMove", function (gameMoveDetails) {
-        console.log("whos up " + gameMoveDetails.whosup);
         players.forEach(function (player) {
             player.emit("nextPlayer", gameMoveDetails);
         });
